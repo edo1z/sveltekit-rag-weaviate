@@ -15,6 +15,8 @@ export const load: PageServerLoad = async ({ params }) => {
 
   const collection = client.collections.get(params.name);
   const items = [];
+  let count = 0;
+  const MAX_ITEMS = 5;
 
   for await (let item of collection.iterator()) {
     items.push({
@@ -22,6 +24,9 @@ export const load: PageServerLoad = async ({ params }) => {
       properties: item.properties,
       vectors: item.vectors
     });
+
+    count++;
+    if (count >= MAX_ITEMS) break;
   }
 
   return {
