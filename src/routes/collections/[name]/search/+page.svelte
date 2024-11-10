@@ -4,11 +4,33 @@
 
   let { data } = $props<{ data: PageData }>();
   let searchQuery = $state("");
+  let searchResults = $state([]);
+  let searchError = $state("");
 </script>
 
-<h1 class="text-2xl font-bold mb-4">{data.name}コレクションのセマンティック検索</h1>
+<h1 class="text-2xl font-bold mb-4">
+  {data.name}コレクションのセマンティック検索
+</h1>
 
-<form method="POST" action="?/search" use:enhance class="mb-8">
+<form
+  method="POST"
+  action="?/search"
+  use:enhance={() => {
+    return async ({ result }) => {
+      if (result.type === "success") {
+        const data = result.data;
+        if (data.success) {
+          searchResults = data.results;
+          searchError = "";
+        } else {
+          searchError = data.error;
+          searchResults = [];
+        }
+      }
+    };
+  }}
+  class="mb-8"
+>
   <div class="flex gap-4">
     <input
       type="text"
@@ -25,3 +47,28 @@
     </button>
   </div>
 </form>
+
+{#if searchError}
+  <p class="text-red-500 mb-4">{searchError}</p>
+{/if}
+
+{#if searchResults.length > 0}
+  <div class="space-y-4">
+    {#each searchResults as result}
+      <div class="p-4 bg-white shadow rounded">
+        <div class="font-bold text-sm text-gray-500 mb-2">
+          UUID: {result.uuid}
+          <span class="ml-4">類似度: {(result.score * 100).toFixed(2)}%</span>
+        </div>
+        <div class="mb-4">
+          {#each Object.entries(result.properties) as [key, value]}
+            <div class="mb-2">
+              <span class="font-semibold">{key}:</span>
+              {value}
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/each}
+  </div>
+{/if}
