@@ -10,7 +10,7 @@
 	{#if data.user}
 		<div class="flex gap-4 items-center">
 			<span>{data.user.username}</span>
-			<form method="POST" action="/mypage?/logout">
+			<form method="POST" action="/logout">
 				<button class="text-sm text-gray-600 hover:text-gray-800">
 					ログアウト
 				</button>
