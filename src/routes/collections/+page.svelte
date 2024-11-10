@@ -12,11 +12,13 @@
 {:else}
   <ul class="space-y-2">
     {#each data.collections as collection}
-      <li class="p-4 bg-white shadow rounded">
-        <h2 class="font-bold">{collection.class}</h2>
-        <p class="text-sm text-gray-600">
-          {collection.name || "No name"}
-        </p>
+      <li class="p-4 bg-white shadow rounded hover:bg-gray-50 cursor-pointer">
+        <a href="/collections/{collection.name}" class="block">
+          <h2 class="font-bold">{collection.name}</h2>
+          <p class="text-sm text-gray-600">
+            {collection.description || "No description"}
+          </p>
+        </a>
       </li>
     {/each}
   </ul>
