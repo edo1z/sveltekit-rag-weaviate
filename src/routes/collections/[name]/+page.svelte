@@ -58,6 +58,12 @@
       <div class="p-4 bg-white shadow rounded">
         <div class="font-bold text-sm text-gray-500 mb-2">
           UUID: {item.uuid}
+          <a
+            href="/collections/{data.name}/{item.uuid}/edit"
+            class="ml-4 text-blue-500 hover:text-blue-700"
+          >
+            編集
+          </a>
         </div>
         <div class="mb-4">
           {#each Object.entries(item.properties) as [key, value]}
