@@ -140,7 +140,6 @@ export const actions: Actions = {
       const answerData = await answerResponse.json();
       const answer = answerData.choices[0].message.content;
 
-      console.log("回答データ", answerData);
       console.log("回答", answer);
 
       return { answer };
