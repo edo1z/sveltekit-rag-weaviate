@@ -64,9 +64,13 @@ export const actions: Actions = {
   },
 
   preview: async ({ request }) => {
-    const { collection, question, promptForQuery, promptForResult } = await request.json();
+    const formData = await request.formData();
+    const collectionName = formData.get('collection')?.toString();
+    const question = formData.get('question')?.toString();
+    const promptForQuery = formData.get('promptForQuery')?.toString();
+    const promptForResult = formData.get('promptForResult')?.toString();
 
-    if (!collection || !question || !promptForQuery || !promptForResult) {
+    if (!collectionName || !question || !promptForQuery || !promptForResult) {
       return fail(400, { error: '必要な項目が不足しています' });
     }
 
@@ -100,17 +104,23 @@ export const actions: Actions = {
       const queryData = await queryResponse.json();
       const searchQuery = queryData.choices[0].message.content;
 
+      console.log("検索クエリ", searchQuery);
+
       // ベクトル検索
-      const collection = client.collections.get(collection);
+      const collection = client.collections.get(collectionName);
       const searchResults = await collection.query.nearText(searchQuery, {
         limit: 5,
         returnMetadata: ['distance']
       });
 
+      console.log("検索結果", searchResults);
+
       // 回答の生成
       const context = searchResults.objects.map(obj =>
         JSON.stringify(obj.properties)
       ).join('\n');
+
+      console.log("コンテキスト", context);
 
       const answerResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -129,6 +139,9 @@ export const actions: Actions = {
 
       const answerData = await answerResponse.json();
       const answer = answerData.choices[0].message.content;
+
+      console.log("回答データ", answerData);
+      console.log("回答", answer);
 
       return { answer };
     } catch (error) {

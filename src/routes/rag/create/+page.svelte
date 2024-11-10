@@ -5,8 +5,8 @@
   let { data } = $props<{ data: PageData }>();
   let name = $state("");
   let description = $state("");
-  let promptForQuery = $state("");
-  let promptForResult = $state("");
+  let promptForQuery = $state(`次の質問文を読み、最も関連性が高い検索結果が得られるように、1～3語程度のシンプルなクエリを生成してください。クエリには、固有名詞や対象となる主要な技術・概念を含めてください。一般的な表現や曖昧な語句は除外し、特定の技術やトピックに焦点を合わせたクエリを目指してください。ベクトルDBのセマンティック検索に最適な形にしてください。`);
+  let promptForResult = $state(`次のベクトルDBの検索結果と、質問文から、最適な回答文を生成してください。検索結果にない内容は含めないでください。検索結果から判断できない場合は、判断できませんと回答してください。`);
 
   // プレビュー用の状態
   let selectedCollection = $state("");
@@ -15,7 +15,8 @@
   let isLoading = $state(false);
   let error = $state("");
 
-  async function handlePreview() {
+  async function handlePreview(event: Event) {
+    event.preventDefault();
     if (!selectedCollection || !question || !promptForQuery || !promptForResult) {
       error = "必要な項目を全て入力してください";
       return;
@@ -25,18 +26,16 @@
     error = "";
     answer = "";
 
+    const formData = new FormData();
+    formData.append('collection', selectedCollection);
+    formData.append('question', question);
+    formData.append('promptForQuery', promptForQuery);
+    formData.append('promptForResult', promptForResult);
+
     try {
       const response = await fetch("?/preview", {
         method: "POST",
-        body: JSON.stringify({
-          collection: selectedCollection,
-          question,
-          promptForQuery,
-          promptForResult
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
+        body: formData
       });
 
       const result = await response.json();
@@ -140,45 +139,48 @@
   <div class="flex-1 max-w-2xl space-y-6">
     <h2 class="text-xl font-bold">プレビュー</h2>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        コレクション
-        <span class="text-red-500">*</span>
-      </label>
-      <select
-        bind:value={selectedCollection}
-        class="w-full border rounded p-2"
-        required
-      >
-        <option value="">選択してください</option>
-        {#each data.collections as collection}
-          <option value={collection.name}>{collection.name}</option>
-        {/each}
-      </select>
-    </div>
+    <form on:submit={handlePreview}>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            コレクション
+            <span class="text-red-500">*</span>
+          </label>
+          <select
+            bind:value={selectedCollection}
+            class="w-full border rounded p-2"
+            required
+          >
+            <option value="">選択してください</option>
+            {#each data.collections as collection}
+              <option value={collection.name}>{collection.name}</option>
+            {/each}
+          </select>
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        質問
-        <span class="text-red-500">*</span>
-      </label>
-      <textarea
-        bind:value={question}
-        required
-        class="w-full border rounded p-2 h-32"
-      />
-    </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            質問
+            <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            bind:value={question}
+            required
+            class="w-full border rounded p-2 h-32"
+          />
+        </div>
 
-    <div>
-      <button
-        type="button"
-        on:click={handlePreview}
-        disabled={isLoading}
-        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-      >
-        {isLoading ? "処理中..." : "プレビュー実行"}
-      </button>
-    </div>
+        <div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+          >
+            {isLoading ? "処理中..." : "プレビュー実行"}
+          </button>
+        </div>
+      </div>
+    </form>
 
     {#if error}
       <div class="text-red-500">{error}</div>
