@@ -29,6 +29,15 @@
 
 <h1 class="text-2xl font-bold mb-4">{data.name}コレクション</h1>
 
+<div class="my-4">
+  <button
+    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    on:click={() => (showModal = true)}
+  >
+    データの追加
+  </button>
+</div>
+
 {#if data.items.length === 0}
   <p>No items found.</p>
 {:else}
@@ -51,15 +60,6 @@
   </div>
 {/if}
 
-<div class="my-4">
-  <button
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    on:click={() => (showModal = true)}
-  >
-    データの追加
-  </button>
-</div>
-
 <!-- モーダル -->
 {#if showModal}
   <div
@@ -73,7 +73,7 @@
         action="?/addItem"
         use:enhance={() => {
           return async ({ result }) => {
-            if (result.type === 'success') {
+            if (result.type === "success") {
               showModal = false;
               // ページをリロードしてデータを更新
               window.location.reload();
@@ -129,7 +129,7 @@
           <button
             type="button"
             class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
-            on:click={() => showModal = false}
+            on:click={() => (showModal = false)}
           >
             キャンセル
           </button>
