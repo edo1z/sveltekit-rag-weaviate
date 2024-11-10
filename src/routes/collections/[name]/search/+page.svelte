@@ -8,6 +8,12 @@
   let searchError = $state("");
 </script>
 
+<div class="mb-4">
+  <a href="/collections/{data.name}" class="text-blue-500 hover:underline">
+    &lt;&nbsp;戻る
+  </a>
+</div>
+
 <h1 class="text-2xl font-bold mb-4">
   {data.name}コレクションのセマンティック検索
 </h1>
