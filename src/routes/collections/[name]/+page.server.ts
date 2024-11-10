@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
   const items = [];
   let count = 0;
-  const MAX_ITEMS = 50;
+  const MAX_ITEMS = 10;
 
   for await (let item of collection.iterator()) {
     items.push({
