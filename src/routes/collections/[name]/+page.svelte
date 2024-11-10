@@ -29,7 +29,13 @@
 
 <h1 class="text-2xl font-bold mb-4">{data.name}コレクション</h1>
 
-<div class="my-4">
+<div class="my-4 flex gap-4">
+  <a
+    href="/collections/{data.name}/search"
+    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+  >
+    検索
+  </a>
   <button
     class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
     on:click={() => (showModal = true)}
