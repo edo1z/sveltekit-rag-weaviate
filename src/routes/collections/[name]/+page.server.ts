@@ -16,9 +16,7 @@ export const load: PageServerLoad = async ({ params }) => {
   const collection = client.collections.get(params.name);
   const items = [];
 
-  for await (let item of collection.iterator({
-    includeVector: true
-  })) {
+  for await (let item of collection.iterator()) {
     items.push({
       uuid: item.uuid,
       properties: item.properties,
