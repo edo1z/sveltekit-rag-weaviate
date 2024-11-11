@@ -36,9 +36,15 @@ export const actions: Actions = {
     const description = formData.get('description')?.toString();
     const promptForQuery = formData.get('promptForQuery')?.toString();
     const promptForResult = formData.get('promptForResult')?.toString();
+    const collectionName = formData.get('collectionName')?.toString();
+    const searchType = formData.get('searchType')?.toString();
 
-    if (!name || !promptForQuery || !promptForResult) {
+    if (!name || !promptForQuery || !promptForResult || !collectionName || !searchType) {
       return fail(400, { message: '必須項目が入力されていません' });
+    }
+
+    if (searchType !== 'semantic' && searchType !== 'hybrid') {
+      return fail(400, { message: '検索方法の値が不正です' });
     }
 
     const id = generateRagId();
@@ -52,6 +58,8 @@ export const actions: Actions = {
         description,
         promptForQuery,
         promptForResult,
+        collectionName,
+        searchType,
         createdAt: now,
         updatedAt: now
       });

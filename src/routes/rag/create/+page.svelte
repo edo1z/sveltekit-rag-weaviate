@@ -5,6 +5,8 @@
   let { data } = $props<{ data: PageData }>();
   let name = $state("");
   let description = $state("");
+  let collectionName = $state("");
+  let searchType = $state("semantic");
   let promptForQuery = $state(
     `次の質問文を読み、最も関連性が高い検索結果が得られるように、1～3語程度のシンプルなクエリを生成してください。クエリには、固有名詞や対象となる主要な技術・概念を含めてください。一般的な表現や曖昧な語句は除外し、特定の技術やトピックに焦点を合わせたクエリを目指してください。ベクトルDBのセマンティック検索に最適な形にしてください。`
   );
@@ -13,20 +15,17 @@
   );
 
   // プレビュー用の状態
-  let selectedCollection = $state("");
   let question = $state("");
   let answer = $state("");
   let isLoading = $state(false);
   let error = $state("");
-
-  // 既存のstate変数の下に追加
   let searchQuery = $state("");
   let searchResults = $state([]);
 
   async function handlePreview(event: Event) {
     event.preventDefault();
     if (
-      !selectedCollection ||
+      !collectionName ||
       !question ||
       !promptForQuery ||
       !promptForResult
@@ -42,7 +41,7 @@
     answer = "";
 
     const formData = new FormData();
-    formData.append("collection", selectedCollection);
+    formData.append("collection", collectionName);
     formData.append("question", question);
     formData.append("promptForQuery", promptForQuery);
     formData.append("promptForResult", promptForResult);
@@ -141,6 +140,39 @@
         />
       </div>
 
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          コレクション
+          <span class="text-red-500">*</span>
+        </label>
+        <select
+          name="collectionName"
+          class="w-full border rounded p-2"
+          required
+        >
+          <option value="">選択してください</option>
+          {#each data.collections as collection}
+            <option value={collection.name}>{collection.name}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          検索方法
+          <span class="text-red-500">*</span>
+        </label>
+        <select
+          name="searchType"
+          class="w-full border rounded p-2"
+          required
+        >
+          <option value="">選択してください</option>
+          <option value="semantic">セマンティック検索</option>
+          <option value="hybrid">ハイブリッド検索</option>
+        </select>
+      </div>
+
       <div class="flex justify-end">
         <button
           type="submit"
@@ -158,23 +190,6 @@
 
     <form on:submit={handlePreview}>
       <div class="space-y-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            コレクション
-            <span class="text-red-500">*</span>
-          </label>
-          <select
-            bind:value={selectedCollection}
-            class="w-full border rounded p-2"
-            required
-          >
-            <option value="">選択してください</option>
-            {#each data.collections as collection}
-              <option value={collection.name}>{collection.name}</option>
-            {/each}
-          </select>
-        </div>
-
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             質問

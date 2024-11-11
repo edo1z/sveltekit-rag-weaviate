@@ -21,7 +21,9 @@ export const rag = sqliteTable('rag', {
   promptForQuery: text('prompt_for_query').notNull(),
   promptForResult: text('prompt_for_result').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  collectionName: text('collection_name').notNull(),
+  searchType: text('search_type').notNull().$type<'semantic' | 'hybrid'>().default('semantic')
 });
 
 export type Session = typeof session.$inferSelect;
