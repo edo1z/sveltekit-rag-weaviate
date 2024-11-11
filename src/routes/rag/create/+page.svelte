@@ -28,7 +28,8 @@
       !collectionName ||
       !question ||
       !promptForQuery ||
-      !promptForResult
+      !promptForResult ||
+      !searchType
     ) {
       error = "必要な項目を全て入力してください";
       return;
@@ -147,6 +148,7 @@
         </label>
         <select
           name="collectionName"
+          bind:value={collectionName}
           class="w-full border rounded p-2"
           required
         >
@@ -164,6 +166,7 @@
         </label>
         <select
           name="searchType"
+          bind:value={searchType}
           class="w-full border rounded p-2"
           required
         >
