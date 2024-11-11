@@ -46,6 +46,7 @@
     formData.append("question", question);
     formData.append("promptForQuery", promptForQuery);
     formData.append("promptForResult", promptForResult);
+    formData.append("searchType", searchType);
 
     try {
       const response = await fetch("/rag/preview", {

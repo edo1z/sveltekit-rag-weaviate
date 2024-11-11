@@ -9,8 +9,9 @@ export const POST: RequestHandler = async ({ request }) => {
   const question = formData.get('question')?.toString();
   const promptForQuery = formData.get('promptForQuery')?.toString();
   const promptForResult = formData.get('promptForResult')?.toString();
+  const searchType = formData.get('searchType')?.toString();
 
-  if (!collectionName || !question || !promptForQuery || !promptForResult) {
+  if (!collectionName || !question || !promptForQuery || !promptForResult || !searchType) {
     return json({ error: '必要な項目が不足しています' }, { status: 400 });
   }
 
@@ -44,10 +45,22 @@ export const POST: RequestHandler = async ({ request }) => {
     const searchQuery = queryData.choices[0].message.content;
 
     const collection = client.collections.get(collectionName);
-    const searchResults = await collection.query.nearText(searchQuery, {
-      limit: 5,
-      returnMetadata: ['distance']
-    });
+    let searchResults;
+
+    if (searchType === 'hybrid') {
+      // ハイブリッド検索の実装
+      searchResults = await collection.query.hybrid(searchQuery, {
+        limit: 5,
+        alpha: 0.5, // セマンティック検索とキーワード検索の重み付け（0.0-1.0）
+        returnMetadata: ['score','explainScore']
+      });
+    } else {
+      // 従来のセマンティック検索
+      searchResults = await collection.query.nearText(searchQuery, {
+        limit: 5,
+        returnMetadata: ['distance']
+      });
+    }
 
     const context = searchResults.objects.map(obj =>
       JSON.stringify(obj.properties)
