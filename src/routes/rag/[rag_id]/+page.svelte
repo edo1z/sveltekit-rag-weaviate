@@ -1,21 +1,254 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import type { PageData } from "./$types";
 
   let { data } = $props<{ data: PageData }>();
+  let name = $state(data.rag.name);
+  let description = $state(data.rag.description);
+  let collectionName = $state(data.rag.collectionName);
+  let searchType = $state(data.rag.searchType);
+  let promptForQuery = $state(data.rag.promptForQuery);
+  let promptForResult = $state(data.rag.promptForResult);
+
+  // プレビュー用の状態
+  let question = $state("");
+  let answer = $state("");
+  let isLoading = $state(false);
+  let error = $state("");
+  let searchQuery = $state("");
+  let searchResults = $state([]);
+
+  async function handlePreview(event: Event) {
+    event.preventDefault();
+    if (
+      !collectionName ||
+      !question ||
+      !promptForQuery ||
+      !promptForResult ||
+      !searchType
+    ) {
+      error = "必要な項目を全て入力してください";
+      return;
+    }
+
+    isLoading = true;
+    error = "";
+    searchQuery = "";
+    searchResults = [];
+    answer = "";
+
+    const formData = new FormData();
+    formData.append("collection", collectionName);
+    formData.append("question", question);
+    formData.append("promptForQuery", promptForQuery);
+    formData.append("promptForResult", promptForResult);
+    formData.append("searchType", searchType);
+
+    try {
+      const response = await fetch("/rag/preview", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        error = result.error;
+      } else {
+        searchQuery = result.searchQuery;
+        searchResults = result.searchResults;
+        answer = result.answer;
+      }
+    } catch (e) {
+      error = "プレビューの実行中にエラーが発生しました";
+    } finally {
+      isLoading = false;
+    }
+  }
 </script>
 
 <div class="mb-4">
   <a href="/rag" class="text-blue-500 hover:underline"> &lt;&nbsp;戻る </a>
 </div>
 
-<h1 class="text-2xl font-bold mb-4">RAG詳細</h1>
+<div class="flex w-full min-h-[calc(100vh-8rem)] gap-8">
+  <div class="flex-1">
+    <h1 class="text-2xl font-bold mb-4">RAG編集</h1>
+    <!-- 左側：編集フォーム -->
+    <form
+      method="POST"
+      action="?/update"
+      use:enhance={() => {
+        return async ({ result }) => {
+          if (result.type === "success") {
+            window.location.href = "/rag";
+          }
+        };
+      }}
+      class="space-y-6"
+    >
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          名前
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          name="name"
+          bind:value={name}
+          required
+          class="w-full border rounded p-2"
+        />
+      </div>
 
-<div class="bg-white p-6 rounded-lg shadow-md">
-  <h2 class="text-xl font-bold mb-2">{data.rag.name}</h2>
-  {#if data.rag.description}
-    <p class="text-gray-600 mb-4">{data.rag.description}</p>
-  {/if}
-  <div class="text-sm text-gray-500 mb-4">
-    作成日: {new Date(data.rag.createdAt).toLocaleString()}
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          説明
+        </label>
+        <textarea
+          name="description"
+          bind:value={description}
+          class="w-full border rounded p-2 h-24"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          クエリ用プロンプト
+          <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          name="promptForQuery"
+          bind:value={promptForQuery}
+          required
+          class="w-full border rounded p-2 h-32"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          結果用プロンプト
+          <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          name="promptForResult"
+          bind:value={promptForResult}
+          required
+          class="w-full border rounded p-2 h-32"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          コレクション
+          <span class="text-red-500">*</span>
+        </label>
+        <select
+          name="collectionName"
+          bind:value={collectionName}
+          class="w-full border rounded p-2"
+          required
+        >
+          <option value="">選択してください</option>
+          {#each data.collections as collection}
+            <option value={collection.name}>{collection.name}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          検索方法
+          <span class="text-red-500">*</span>
+        </label>
+        <select
+          name="searchType"
+          bind:value={searchType}
+          class="w-full border rounded p-2"
+          required
+        >
+          <option value="">選択してください</option>
+          <option value="semantic">セマンティック検索</option>
+          <option value="hybrid">ハイブリッド検索</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end">
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          更新
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 右側：プレビュー -->
+  <div class="flex-1">
+    <h2 class="text-xl font-bold mb-4">プレビュー</h2>
+
+    <form on:submit={handlePreview}>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            質問
+            <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            bind:value={question}
+            required
+            class="w-full border rounded p-2 h-32"
+          />
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+          >
+            {isLoading ? "処理中..." : "プレビュー実行"}
+          </button>
+        </div>
+      </div>
+    </form>
+
+    {#if error}
+      <div class="text-red-500">{error}</div>
+    {/if}
+
+    {#if searchQuery}
+      <div class="bg-gray-50 p-4 rounded space-y-4">
+        <div>
+          <h3 class="font-bold mb-2">生成されたクエリ</h3>
+          <p class="whitespace-pre-wrap">{searchQuery}</p>
+        </div>
+
+        {#if searchResults.length > 0}
+          <div>
+            <h3 class="font-bold mb-2">検索結果</h3>
+            <div class="space-y-2">
+              {#each searchResults as result}
+                <div class="bg-white p-2 rounded border">
+                  <pre class="whitespace-pre-wrap text-sm">{JSON.stringify(
+                      result,
+                      null,
+                      2
+                    )}</pre>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        {#if answer}
+          <div>
+            <h3 class="font-bold mb-2">回答</h3>
+            <p class="whitespace-pre-wrap">{answer}</p>
+          </div>
+        {/if}
+      </div>
+    {/if}
   </div>
 </div>
