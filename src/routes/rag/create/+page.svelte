@@ -5,8 +5,12 @@
   let { data } = $props<{ data: PageData }>();
   let name = $state("");
   let description = $state("");
-  let promptForQuery = $state(`次の質問文を読み、最も関連性が高い検索結果が得られるように、1～3語程度のシンプルなクエリを生成してください。クエリには、固有名詞や対象となる主要な技術・概念を含めてください。一般的な表現や曖昧な語句は除外し、特定の技術やトピックに焦点を合わせたクエリを目指してください。ベクトルDBのセマンティック検索に最適な形にしてください。`);
-  let promptForResult = $state(`次のベクトルDBの検索結果と、質問文から、最適な回答文を生成してください。検索結果にない内容は含めないでください。検索結果から判断できない場合は、判断できませんと回答してください。`);
+  let promptForQuery = $state(
+    `次の質問文を読み、最も関連性が高い検索結果が得られるように、1～3語程度のシンプルなクエリを生成してください。クエリには、固有名詞や対象となる主要な技術・概念を含めてください。一般的な表現や曖昧な語句は除外し、特定の技術やトピックに焦点を合わせたクエリを目指してください。ベクトルDBのセマンティック検索に最適な形にしてください。`
+  );
+  let promptForResult = $state(
+    `次のベクトルDBの検索結果と、質問文から、最適な回答文を生成してください。検索結果にない内容は含めないでください。検索結果から判断できない場合は、判断できませんと回答してください。`
+  );
 
   // プレビュー用の状態
   let selectedCollection = $state("");
@@ -15,33 +19,47 @@
   let isLoading = $state(false);
   let error = $state("");
 
+  // 既存のstate変数の下に追加
+  let searchQuery = $state("");
+  let searchResults = $state([]);
+
   async function handlePreview(event: Event) {
     event.preventDefault();
-    if (!selectedCollection || !question || !promptForQuery || !promptForResult) {
+    if (
+      !selectedCollection ||
+      !question ||
+      !promptForQuery ||
+      !promptForResult
+    ) {
       error = "必要な項目を全て入力してください";
       return;
     }
 
     isLoading = true;
     error = "";
+    searchQuery = "";
+    searchResults = [];
     answer = "";
 
     const formData = new FormData();
-    formData.append('collection', selectedCollection);
-    formData.append('question', question);
-    formData.append('promptForQuery', promptForQuery);
-    formData.append('promptForResult', promptForResult);
+    formData.append("collection", selectedCollection);
+    formData.append("question", question);
+    formData.append("promptForQuery", promptForQuery);
+    formData.append("promptForResult", promptForResult);
 
     try {
-      const response = await fetch("?/preview", {
+      const response = await fetch("/rag/preview", {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       const result = await response.json();
+
       if (result.error) {
         error = result.error;
       } else {
+        searchQuery = result.searchQuery;
+        searchResults = result.searchResults;
         answer = result.answer;
       }
     } catch (e) {
@@ -53,9 +71,7 @@
 </script>
 
 <div class="mb-4">
-  <a href="/rag" class="text-blue-500 hover:underline">
-    &lt;&nbsp;戻る
-  </a>
+  <a href="/rag" class="text-blue-500 hover:underline"> &lt;&nbsp;戻る </a>
 </div>
 
 <h1 class="text-2xl font-bold mb-4">新規RAG作成</h1>
@@ -89,9 +105,7 @@
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        説明
-      </label>
+      <label class="block text-sm font-medium text-gray-700 mb-1"> 説明 </label>
       <textarea
         name="description"
         bind:value={description}
@@ -186,10 +200,36 @@
       <div class="text-red-500">{error}</div>
     {/if}
 
-    {#if answer}
-      <div class="bg-gray-50 p-4 rounded">
-        <h3 class="font-bold mb-2">回答</h3>
-        <p class="whitespace-pre-wrap">{answer}</p>
+    {#if searchQuery}
+      <div class="bg-gray-50 p-4 rounded space-y-4">
+        <div>
+          <h3 class="font-bold mb-2">生成されたクエリ</h3>
+          <p class="whitespace-pre-wrap">{searchQuery}</p>
+        </div>
+
+        {#if searchResults.length > 0}
+          <div>
+            <h3 class="font-bold mb-2">検索結果</h3>
+            <div class="space-y-2">
+              {#each searchResults as result}
+                <div class="bg-white p-2 rounded border">
+                  <pre class="whitespace-pre-wrap text-sm">{JSON.stringify(
+                      result,
+                      null,
+                      2
+                    )}</pre>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+
+        {#if answer}
+          <div>
+            <h3 class="font-bold mb-2">回答</h3>
+            <p class="whitespace-pre-wrap">{answer}</p>
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
