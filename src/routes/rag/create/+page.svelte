@@ -74,84 +74,87 @@
   <a href="/rag" class="text-blue-500 hover:underline"> &lt;&nbsp;戻る </a>
 </div>
 
-<h1 class="text-2xl font-bold mb-4">新規RAG作成</h1>
+<div class="flex w-full min-h-[calc(100vh-8rem)] gap-8">
+  <div class="flex-1">
+    <h1 class="text-2xl font-bold mb-4">RAG作成</h1>
+    <!-- 左側：作成フォーム -->
+    <form
+      method="POST"
+      action="?/create"
+      use:enhance={() => {
+        return async ({ result }) => {
+          if (result.type === "success") {
+            window.location.href = "/rag";
+          }
+        };
+      }}
+      class="space-y-6"
+    >
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          名前
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          name="name"
+          bind:value={name}
+          required
+          class="w-full border rounded p-2"
+        />
+      </div>
 
-<div class="flex gap-8">
-  <!-- 左側：作成フォーム -->
-  <form
-    method="POST"
-    action="?/create"
-    use:enhance={() => {
-      return async ({ result }) => {
-        if (result.type === "success") {
-          window.location.href = "/rag";
-        }
-      };
-    }}
-    class="flex-1 max-w-2xl space-y-6"
-  >
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        名前
-        <span class="text-red-500">*</span>
-      </label>
-      <input
-        type="text"
-        name="name"
-        bind:value={name}
-        required
-        class="w-full border rounded p-2"
-      />
-    </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          説明
+        </label>
+        <textarea
+          name="description"
+          bind:value={description}
+          class="w-full border rounded p-2 h-24"
+        />
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1"> 説明 </label>
-      <textarea
-        name="description"
-        bind:value={description}
-        class="w-full border rounded p-2 h-24"
-      />
-    </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          クエリ用プロンプト
+          <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          name="promptForQuery"
+          bind:value={promptForQuery}
+          required
+          class="w-full border rounded p-2 h-32"
+        />
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        クエリ用プロンプト
-        <span class="text-red-500">*</span>
-      </label>
-      <textarea
-        name="promptForQuery"
-        bind:value={promptForQuery}
-        required
-        class="w-full border rounded p-2 h-32"
-      />
-    </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          結果用プロンプト
+          <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          name="promptForResult"
+          bind:value={promptForResult}
+          required
+          class="w-full border rounded p-2 h-32"
+        />
+      </div>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">
-        結果用プロンプト
-        <span class="text-red-500">*</span>
-      </label>
-      <textarea
-        name="promptForResult"
-        bind:value={promptForResult}
-        required
-        class="w-full border rounded p-2 h-32"
-      />
-    </div>
-
-    <div class="flex justify-end">
-      <button
-        type="submit"
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        作成
-      </button>
-    </div>
-  </form>
+      <div class="flex justify-end">
+        <button
+          type="submit"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          作成
+        </button>
+      </div>
+    </form>
+  </div>
 
   <!-- 右側：プレビュー -->
-  <div class="flex-1 max-w-2xl space-y-6">
-    <h2 class="text-xl font-bold">プレビュー</h2>
+  <div class="flex-1">
+    <h2 class="text-xl font-bold mb-4">プレビュー</h2>
 
     <form on:submit={handlePreview}>
       <div class="space-y-6">
