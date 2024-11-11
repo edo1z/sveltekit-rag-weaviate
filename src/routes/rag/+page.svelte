@@ -19,15 +19,17 @@
 {:else}
   <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
     {#each data.rags as rag}
-      <div class="bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold mb-2">{rag.name}</h2>
-        {#if rag.description}
-          <p class="text-gray-600 mb-4">{rag.description}</p>
-        {/if}
-        <div class="text-sm text-gray-500">
-          作成日: {new Date(rag.createdAt).toLocaleString()}
+      <a href="/rag/{rag.id}" class="block">
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+          <h2 class="text-xl font-bold mb-2">{rag.name}</h2>
+          {#if rag.description}
+            <p class="text-gray-600 mb-4">{rag.description}</p>
+          {/if}
+          <div class="text-sm text-gray-500">
+            作成日: {new Date(rag.createdAt).toLocaleString()}
+          </div>
         </div>
-      </div>
+      </a>
     {/each}
   </div>
 {/if}
