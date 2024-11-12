@@ -1,38 +1,40 @@
-# sv
+# SvelteKit Weaviate RAG Labo
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+## 概要
+- SvelteKitとWeaviateで作られたRAGの実験用システム
+- OpenAI APIを使用
+- DBはTursoのSQLiteを使用
+- Weaviateにデータを追加・編集可能
+- セマンティック検索の確認と類似度の表示
+- 簡単なログイン機能を実装
+- RAGの設定を複数登録可能
+  - ベクトルDB検索用クエリ生成プロンプト
+  - 回答文生成用プロンプト
+  - 対象となるWeaviateコレクション
+  - 検索方法（セマンティック・ハイブリッド）
+- RAG設定の追加・編集画面でプレビュー実行可能
 
-## Creating a project
+## セットアップ
+### 環境変数の設定
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+```shell
+cp .env.example .env
 ```
 
-## Developing
+.envファイルに以下の環境変数を設定してください：
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- Turso DB
+  - DATABASE_URL
+  - DATABASE_AUTH_TOKEN
+- Weaviate
+  - WEAVIATE_URL
+  - WEAVIATE_API_KEY
+- OpenAI
+  - OPENAI_API_KEY
 
-```bash
+### インストールと実行
+
+```shell
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

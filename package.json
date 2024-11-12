@@ -1,5 +1,5 @@
 {
-	"name": "rag-1",
+	"name": "sveltekit-rag-weaviate",
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
