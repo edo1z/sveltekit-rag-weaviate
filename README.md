@@ -1,4 +1,8 @@
-# SvelteKit Weaviate RAG Labo
+# sveltekit-rag-weaviate
+
+SvelteKit Weaviate RAG Labo
+
+[![RAG System Demo](https://img.youtube.com/vi/2EOMFLimo0g/0.jpg)](https://www.youtube.com/watch?v=2EOMFLimo0g)
 
 ## 概要
 - SvelteKitとWeaviateで作られたRAGの実験用システム
